@@ -120,7 +120,7 @@ var storage = storages.create('songgedodo');
 // 脚本版本号
 var last_version = "V10.11";
 var engine_version = "V11.0";
-var newest_version = "V11.1";
+var newest_version = "V11.0";
 if (storage.get(engine_version, true)) {
   storage.remove(last_version);
   let gengxin_rows = ["最新版本强国APP不支持多人对战，切勿更新！",
@@ -130,9 +130,9 @@ if (storage.get(engine_version, true)) {
   if (!is_show) {storage.put(engine_version, false);}
 }
 var w = fInit();
-// console.setTitle("天天向上");
+// console.setTitle("AUTOQG-FIXED");
 // console.show();
-fInfo("天天向上Pro"+newest_version+"脚本初始化");
+fInfo("AUTOQG-FIXED"+"脚本初始化");
 // 初始化宽高
 var [device_w, device_h] = init_wh();
 // log("fina:", device_w, device_h);
@@ -194,10 +194,10 @@ var dati_tiku = [];
 try {dati_tiku = update_dati_tiku()}
 catch (e) {
   fError("网络原因未获取到在线题库，请尝试切换流量或者更换114DNS");
-  dati_tiku = get_tiku_by_ct('https://webapi.ctfile.com/get_file_url.php?uid=35157972&fid=555754562&file_chk=94c3c662ba28f583d2128a1eb9d78af4&app=0&acheck=2&rd=0.14725283060014105');
+  dati_tiku = get_tiku_by_ct('https://gitcode.net/qq_19328893/wjhey/-/raw/master/%E5%A4%A9%E5%A4%A9%E5%90%91%E4%B8%8APro/info.json');
 }
 // 设置资源保存路径
-files.createWithDirs("/sdcard/天天向上/");
+files.createWithDirs("/sdcard/AUTOQG-FIXED/");
 // 调整音量
 if (yl_on) {
   fInfo("设置媒体音量");
@@ -1029,9 +1029,9 @@ function do_duizhan1(renshu) {
     }
       console.timeEnd('题目识别');
       if (!que_txt) {
-        images.save(img, '/sdcard/天天向上/' + renshu + '-' + num + '.png','png',50);
-        images.save(que_img, '/sdcard/天天向上/' + renshu + '-' + num + '-q.png','png',50);
-        fError("未识别出题目，图片保存至‘/sdcard/天天向上/’");
+        images.save(img, '/sdcard/AUTOQG-FIXED/' + renshu + '-' + num + '.png','png',50);
+        images.save(que_img, '/sdcard/AUTOQG-FIXED/' + renshu + '-' + num + '-q.png','png',50);
+        fError("未识别出题目，图片保存至‘/sdcard/AUTOQG-FIXED/’");
         console.error("大概率无障碍服务失效"+ auto.service);
         console.error("题目框体范围：", que_x, que_y, que_w, que_h);
         img.recycle();
@@ -1151,8 +1151,8 @@ function do_duizhan1(renshu) {
     console.timeEnd("选项识别");
     // log(allx_txt);
     if (!allx_txt) {
-      images.save(img, '/sdcard/天天向上/' + renshu + '-' + num + '-a.png','png',50);
-      log("识别不出选项文本，图片保存至‘/sdcard/天天向上/’");
+      images.save(img, '/sdcard/AUTOQG-FIXED/' + renshu + '-' + num + '-a.png','png',50);
+      log("识别不出选项文本，图片保存至‘/sdcard/AUTOQG-FIXED/’");
       err_flag = false;
       sleep(200);
       continue;
@@ -1836,7 +1836,7 @@ function update_dati_tiku() {
 //   } 上面else的}
   //log("update total:", total);
   if (!dati_tiku || dati_tiku.length != total) {
-    let req = http.get("https://tiku.3141314.xyz/getAnswer");
+    let req = http.get("https://gitcode.net/qq_19328893/wjhey/-/raw/master/%E5%A4%A9%E5%A4%A9%E5%90%91%E4%B8%8APro/dati_tiku_20220719.txt");
     if (req.statusCode == 200) {
       dati_tiku = req.body.json();
       storage.put('dati_tiku', dati_tiku);
@@ -1870,6 +1870,16 @@ function upload_wrong_exec(endstr) {
   let question = que_txt.replace(/\s/g, "");
   if (endstr) {ans_txt += endstr;}
   fError("错题:" + question + ans_txt);
+  //dati_tiku.unshift([question, ans_txt, null, null, null]);
+  for (let ti of dati_tiku) {
+    if (ti[0] == question) {
+      console.info("题库已有此题");
+      if (ti[1] == ans_txt) {
+        console.info("并且答案一样，已跳过");
+        return false
+      }
+    }
+  }
   dati_tiku.push([question, ans_txt, null, null, null]);
 }
 
@@ -1900,13 +1910,8 @@ function get_ans_by_tiku(que_txt) {
 // 获取直链json
 function get_tiku_by_http(link) {
   // 通过gitee的原始数据保存题库
-  if (!link) {link = "https://mart-17684809426.coding.net/p/tiku/d/tiku/git/raw/master/tiku_json.txt"}
-  let req = http.get(link, {
-    headers: {
-      "Accept-Language": "zh-cn,zh;q=0.5",
-      "User-Agent": random(0, 17),
-    },
-  });
+  if (!link) {link = "https://gitcode.net/qq_19328893/wjhey/-/raw/master/%E5%A4%A9%E5%A4%A9%E5%90%91%E4%B8%8APro/tiku_json_20220719.txt"}
+  let req = http.get(link);
   log(req.statusCode);
   // 更新题库时若获取不到，则文件名+1
   if (req.statusCode != 200) {
@@ -1920,7 +1925,7 @@ function get_tiku_by_http(link) {
 function get_tiku_by_ct(link) {
   // 获取答案html并解析
   // 城通网盘解析
-  if (!link) {link = "https://webapi.ctfile.com/get_file_url.php?uid=35157972&fid=546999609&file_chk=e83f4b72a2f142cca6ee87c64baba15c&app=0&acheck=2&rd=0.9023931062078081"}
+  if (!link) {link = "https://gitcode.net/qq_19328893/wjhey/-/raw/master/%E5%A4%A9%E5%A4%A9%E5%90%91%E4%B8%8APro/tiku_json_20220719.txt"}
   let req = http.get(link);
 //   let resp_str = req.body.string();
 //   let result = eval("("+ resp_str + ")");
@@ -2106,8 +2111,8 @@ function ocr_test() {
 
 // pushplus推送
 function send_pushplus(token, sign_list) {
-  "old" == jifen_flag ? (zongfen = text("成长总积分").findOne().parent().child(3).text()) : "new" == jifen_flag && (zongfen = text("成长总积分").findOne().parent().child(1).text());
   jinri = jifen_list.parent().child(1).text().match(/\d+/g)[0];
+  zongfen = text("成长总积分").findOne().parent().child(1).text();
   let style_str = '<style>.item{height:1.5em;line-height:1.5em;}.item span{display:inline-block;padding-left:0.4em;}\
 .item .bar{width:100px;height:10px;background-color:#ddd;border-radius:5px;display:inline-block;}\
 .item .bar div{height:10px;background-color:#ed4e45;border-radius:5px;}</style>';
@@ -2116,25 +2121,23 @@ function send_pushplus(token, sign_list) {
   	if (sign == "ocr_false") { content_str = '由于ocr过慢，已跳过多人对战'+content_str; }
   }
   for (let option of jifen_list.children()) {
-    if ("old" == jifen_flag)
-      var title = option.child(0).child(0).text(),
-      score = option.child(2).text().match(/\d+/g)[0],
-      total = option.child(2).text().match(/\d+/g)[1];
-    else
-      "new" == jifen_flag &&
-      ((title = option.child(0).text()),
-        (score = option.child(3).child(0).text()),
-        (total = option.child(3).child(2).text().match(/\d+/g)[0]));
-    "专项答题" == title && (total = 10);
+    let title = option.child(0).text();
+    if (title == "专项答题") {
+      var score = option.child(3).child(0).text().match(/\d+/g)[0];
+      var total = 10;
+    } else {
+      var score = option.child(3).child(0).text().match(/\d+/g)[0];
+      var total = option.child(3).child(2).text().match(/\d+/g)[0];
+    }
     let percent = (Number(score)/Number(total)*100).toFixed() + '%';
-    let detail = title+": "+score+"/"+total;
+    let detail = title+": "+'已获取'+score+'分'+"/"+'总共'+total+'分';
     content_str += '<div class="item"><div class="bar"><div style="width: '+percent+';"></div></div><span>'+detail+'</span></div>';
   }
   content_str += '</div>'+style_str;
   let r = http.postJson("http://www.pushplus.plus/send", {
     token: token,
-    title: "天天向上："+name,
-    content: content_str + "</div><style>.item{height:1.5em;line-height:1.5em;}.item span{display:inline-block;padding-left:0.4em;}.item .bar{width:100px;height:10px;background-color:#ddd;border-radius:5px;display:inline-block;}.item .bar div{height:10px;background-color:#ed4e45;border-radius:5px;}</style>",
+    title: "AUTOQG-FIXED："+name,
+    content: content_str,
     template: "markdown",
   });
   if (r.body.json()["code"] == 200) {fInfo("推送成功");}
@@ -2153,7 +2156,7 @@ function send_email(email) {
   let content = "用户" + name + "已完成：" + zongfen;
   var data=app.intent({action: "SENDTO"});
   data.setData(app.parseUri("mailto:"+e_addr));
-  data.putExtra(Intent.EXTRA_SUBJECT, "天天向上："+name);
+  data.putExtra(Intent.EXTRA_SUBJECT, "AUTOQG-FIXED："+name);
   data.putExtra(Intent.EXTRA_TEXT, content);
   app.startActivity(data);
   return true;
@@ -2311,7 +2314,7 @@ function fInit() {
     <card cardCornerRadius='8dp' alpha="0.8">
       <vertical>
         <horizontal bg='#FF000000' padding='10 5'>
-        <text id='version' textColor="#FFFFFF" textSize="18dip">天天向上+</text>
+        <text id='version' textColor="#FFFFFF" textSize="18dip">AUTOQG-FIXED+</text>
         <text id='title' h="*" textColor="#FFFFFF" textSize="13dip" layout_weight="1" gravity="top|right"></text>
         </horizontal>
         <ScrollView>
@@ -2325,7 +2328,7 @@ function fInit() {
   );
   ui.run(function() {
     //w.title.setFocusable(true);
-    w.version.setText("天天向上+"+newest_version);
+    w.version.setText("AUTOQG-FIXED+"+newest_version);
   });
   w.setSize(720, -2);
   w.setPosition(10, 10);
@@ -2592,4 +2595,3 @@ sleep(10000);
 console.hide();
 home();
 exit();
-
