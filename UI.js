@@ -57,7 +57,7 @@ ui.layout(
                             </card>
                         </vertical>
                         <button h="60" layout_gravity="center" id="log" textSize="18sp" text="查看日志" />
-                        <button h="60" layout_gravity="center" id="update" textSize="18sp" text="update" / />
+                        <button h="60" layout_gravity="center" id="update" textSize="18sp" text="update"  />
                         <button id="start" text="开 始 学 习" textSize="25sp" color="#ffffff" bg="#FF4FB3FF" foreground="?selectableItemBackground"/>
                     </vertical>
                 </frame>
