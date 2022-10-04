@@ -177,17 +177,103 @@ if (!requestScreenCapture(false)) { // false为竖屏方向
   fError('请求截图失败');
   exit();
 }
+
+//坚果云修复gitee无法下载
+
+var user_uid;//用户uid数组
+var url = "http://dav.jianguoyun.com/dav/";
+var name = "1761630764@qq.com";//jianguoyun_count
+var pass = "a4m6q9c6i3pr2dfz";//获取方式 https://writer.drakeet.com/backups
+var code = base64(name + ":" + pass);
+var path1 = "我的坚果云/douyin/info.json"
+var path2 = "我的坚果云/douyin/tiku.json"
+var update_info = 获取(path1);
+//console.log(update_info);
+
+function 创建目录(name) {
+    //用于创建目录
+    //vat name = "Writer.txt;
+    var res = http.request(url + name, {
+        method: "MKCOL",
+        headers: {
+            "Authorization": "Basic " + code,
+            "Connection": "Keep-Alive",
+            "Accept-Encoding": "gzip",
+            "User-Agent": "okhttp/3.12.1"
+        },
+
+    });
+    log(res["statusCode"]);
+}
+
+function 删除(path) {
+    //删除一个文件
+    //var path = "Put/Writer.txt";
+    var res = http.request(url + path, {
+        method: "DELETE",
+        headers: {
+            "Authorization": "Basic " + code,
+            "Connection": "Keep-Alive",
+            "Accept-Encoding": "gzip",
+            "User-Agent": "okhttp/3.12.1"
+        }
+    });
+    log(res.body.string());
+}
+
+function 获取(path) {
+    //获取一个资源文件
+    //var url = "Put/Writer.txt";
+    var res = http.get(url + path, {
+        headers: {
+            "Authorization": "Basic " + code,
+            "Content-Type": "text/plain;charset=UTF-8",
+            "Connection": "Keep-Alive",
+            "Accept-Encoding": "gzip",
+            "User-Agent": "okhttp/3.12.1"
+        }
+    });
+   // log(res.body.string());
+   return res.body.json();
+}
+
+function 上传(path, str) {
+    //上传文件
+    //var path = "Put/Writer.txt";
+    var res = http.request(url, {
+        method: "PUT",
+        headers: {
+            "Authorization": "Basic " + code,
+            "Content-Type": "text/plain;charset=UTF-8",
+            "Connection": "Keep-Alive",
+            "Accept-Encoding": "gzip",
+            "User-Agent": "okhttp/3.12.1"
+        },
+        //body: "Javascript 面向对象编程—继承和封装"
+        body: str
+    });
+    log(res.body.string());
+}
+
+function base64(str) {
+    return java.lang.String(android.util.Base64.encode(java.lang.String(str).getBytes(), 2));
+}
+
 // 防止设备息屏
 fInfo("设置屏幕常亮");
 device.keepScreenOn(3600 * 1000);
 // 下载题库
 fInfo("检测题库更新");
-const update_info = get_tiku_by_http("https://gitcode.net/m0_64980826/songge_tiku/-/raw/master/info.json");
+/*********由上面的坚果云代替update_info***************************** */
+//const update_info = get_tiku_by_http("https://gitcode.net/m0_64980826/songge_tiku/-/raw/master/info.json");  // 
 fInfo("正在加载对战题库......请稍等\n题库版本:"+update_info["tiku_version"]);
 fInfo("如果不动就是正在下载，多等会");
 var tiku = [];
-try {tiku = get_tiku_by_http(update_info["tiku_link"]);}
-catch (e) {tiku = get_tiku_by_http(update_info["tiku_link2"]);}
+try {tiku = 获取(path2);}
+catch (e) {tiku = 获取(path2);}
+
+//try {tiku = get_tiku_by_http(update_info["tiku_link"]);}
+//catch (e) {tiku = get_tiku_by_http(update_info["tiku_link2"]);}
 // var tiku = get_tiku_by_gitee();
 fInfo("正在加载专项题库......请稍等\n题库版本:"+update_info["dati_tiku_version"]);
 var dati_tiku = [];
@@ -1818,8 +1904,12 @@ function update_dati_tiku() {
     //dati_tiku = get_tiku_by_ct('https://webapi.ctfile.com/get_file_url.php?uid=35157972&fid=555754562&file_chk=94c3c662ba28f583d2128a1eb9d78af4&app=0&acheck=2&rd=0.14725283060014105');
     //dati_tiku = get_tiku_by_gitee('https://gitee.com/songgedodo/songge_tiku/raw/master/dati_tiku.txt');
     if (update_info["dati_tiku_link"] != last_dati_tiku_link) {
-      try {dati_tiku = get_tiku_by_http(update_info["dati_tiku_link"]);}
-      catch (e) {dati_tiku = get_tiku_by_http(update_info["dati_tiku_link2"]);}
+    //坚云
+    try {dati_tiku = 获取(path2);}
+      catch (e) {dati_tiku = 获取(path2);}
+      //备份
+      //try {dati_tiku = get_tiku_by_http(update_info["dati_tiku_link"]);}
+      //catch (e) {dati_tiku = get_tiku_by_http(update_info["dati_tiku_link2"]);}
       storage.put("dati_tiku_link", update_info["dati_tiku_link"]);
       storage.put('dati_tiku', dati_tiku);
       fInfo("已更新离线题库");
@@ -1870,6 +1960,16 @@ function upload_wrong_exec(endstr) {
   let question = que_txt.replace(/\s/g, "");
   if (endstr) {ans_txt += endstr;}
   fError("错题:" + question + ans_txt);
+  //dati_tiku.unshift([question, ans_txt, null, null, null]);
+  for (let ti of dati_tiku) {
+    if (ti[0] == question) {
+      console.info("题库已有此题");
+      if (ti[1] == ans_txt) {
+        console.info("并且答案一样，已跳过");
+        return false
+      }
+    }
+  }
   dati_tiku.push([question, ans_txt, null, null, null]);
 }
 
