@@ -182,13 +182,13 @@ if (!requestScreenCapture(false)) { // false为竖屏方向
 
 var user_uid;//用户uid数组
 var url = "http://dav.jianguoyun.com/dav/";
-var name = "1761630764@qq.com";//jianguoyun_count
-var pass = "a4m6q9c6i3pr2dfz";//获取方式 https://writer.drakeet.com/backups
+var name = "386497941@qq.com";//jianguoyun_count
+var pass = "acygbcmfvntfziz3";//获取方式 https://writer.drakeet.com/backups
 var code = base64(name + ":" + pass);
 var path1 = "我的坚果云/douyin/info.json"
 var path2 = "我的坚果云/douyin/tiku.json"
 var update_info = 获取(path1);
-console.log(update_info);
+//console.log(update_info);
 
 function 创建目录(name) {
     //用于创建目录
