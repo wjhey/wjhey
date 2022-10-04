@@ -224,6 +224,7 @@ function 删除(path) {
 function 获取(path) {
     //获取一个资源文件
     //var url = "Put/Writer.txt";
+    log(url + path);
     var res = http.get(url + path, {
         headers: {
             "Authorization": "Basic " + code,
@@ -2692,4 +2693,3 @@ sleep(10000);
 console.hide();
 home();
 exit();
-
